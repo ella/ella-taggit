@@ -3,39 +3,30 @@ Created on 1.8.2012
 
 @author: xaralis
 '''
-from datetime import datetime
-
 from django.template.defaultfilters import slugify
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from django.views.generic import ListView
 from django.conf import settings
 
-from ella.core.models import Publishable
-
-from ella_taggit.models import PublishableTag
+from ella_taggit.models import PublishableTag, tag_list, publishables_with_tag
 
 
 class TaggedPublishablesView(ListView):
     context_object_name = 'object_list'
     paginate_by = getattr(settings, 'TAG_LISTINGS_PAGINATE_BY', 10)
+    relation_occ_threshold = getattr(settings, 'TAG_RELATION_OCCURENCE_THRESHOLD', None)
+    relation_count_limit = getattr(settings, 'TAG_RELATION_COUNT_LIMIT', None)
 
     def get_queryset(self):
-        self.tag = get_object_or_404(PublishableTag, name=self.kwargs['tag'])
-        now = datetime.now()
-
-        return Publishable.objects.filter(
-            Q(publish_to__isnull=True) | Q(publish_to__gt=now),
-            publish_from__lt=now,
-            published=True,
-            tags__in=[self.tag]
-        ).distinct().order_by('-publish_from')
+        self.tag = get_object_or_404(PublishableTag, slug=self.kwargs['tag'])
+        return publishables_with_tag(self.tag)
 
     def get_template_names(self):
-        return [
+        return (
             'page/tagging/%s/listing.html' % slugify(self.kwargs['tag']),
             'page/tagging/listing.html',
-        ]
+        )
 
     def paginate_queryset(self, queryset, page_size):
         """
@@ -61,4 +52,8 @@ class TaggedPublishablesView(ListView):
             context['results_per_page'] = self.paginate_by
 
         context['tag'] = self.tag
+        context['related_tags'] = tag_list(self.object_list,
+                                           threshold=self.relation_occ_threshold,
+                                           count=self.relation_count_limit,
+                                           omit=self.tag)
         return context

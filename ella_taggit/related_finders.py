@@ -20,20 +20,21 @@ def related_by_tags(obj, count, collected_so_far, mods=[], only_from_same_site=T
         obj = obj.publishable_ptr
 
     filters = {
-        'publish_from__lte': datetime.now(),
-        'published': True,
-        'pk__not__in': [o.pk for o in collected_so_far]
+        'content_object__publish_from__lte': datetime.now(),
+        'content_object__published': True,
     }
 
     if mods:
         filters.update({
-            'content_type__in': [ContentType.objects.get_for_model(m).pk for m in mods]
+            'content_object__content_type__in': [ContentType.objects.get_for_model(m).pk for m in mods]
         })
 
     if only_from_same_site:
         filters.update({
-            'category__site__pk': settings.SITE_ID
+            'content_object__category__site__pk': settings.SITE_ID
         })
 
     return collected_so_far + obj.tags.similar_objects(
-        num=count + count - len(collected_so_far), **filters)
+        num=count - len(collected_so_far),
+        filters=filters,
+        excludes={'content_object__pk__in': [o.pk for o in collected_so_far]})

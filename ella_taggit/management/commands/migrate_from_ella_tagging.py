@@ -4,6 +4,8 @@ Created on 1.8.2012
 @author: xaralis
 '''
 from django.core.management.base import NoArgsCommand
+from django.db import connection
+from django.db.utils import IntegrityError
 
 try:
     import tagging
@@ -16,8 +18,8 @@ except ImportError, e:
 
 else:
     from tagging.models import Tag as OldTag
-    from ella_taggit.models import PublishableTag as NewTag
     from tagging.models import TaggedItem as OldTaggedItem
+    from ella_taggit.models import PublishableTag as NewTag
     from ella_taggit.models import PublishableTaggedItem as NewTaggedItem
 
     class Command(NoArgsCommand):
@@ -27,6 +29,7 @@ else:
             self.delete_unused_tags()
             self.set_tags()
             self.set_taggeditems()
+            self.drop_old_tables()
 
         def get_used_tags(self):
             return tuple(set(t[0] for t in
@@ -67,8 +70,19 @@ else:
                 new_tags = NewTag.objects.filter(id=new_id)
                 if new_tags:
                     new_tag = new_tags[0]
-                    new_tagitem = NewTaggedItem(
-                            id=old_tagitem.id,
-                            tag=new_tag,
-                            content_object_id=old_tagitem.object_id)
-                    new_tagitem.save()
+                    try:
+                        new_tagitem = NewTaggedItem(
+                                id=old_tagitem.id,
+                                tag=new_tag,
+                                content_object_id=old_tagitem.object_id)
+                        new_tagitem.save()
+                    except IntegrityError:
+                        print 'Cannot assingn tag %s to publishable %s: ' \
+                              'Publishable object not found.' % (
+                                  new_tag, old_tagitem.object_id)
+
+        def drop_old_tables(self):
+            print "Dropping django-tagging tables."
+            cursor = connection.cursor()
+            cursor.execute('DROP TABLE tagging_taggeditem;')
+            cursor.execute('DROP TABLE tagging_tag;')
