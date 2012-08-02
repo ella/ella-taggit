@@ -17,7 +17,7 @@ def run_all(argv=None):
     if argv is None:
         argv = [
             'nosetests',
-            '--with-coverage', '--cover-package=ella_tagging', '--cover-erase',
+            '--with-coverage', '--cover-package=ella_taggit', '--cover-erase',
             '--nocapture', '--nologcapture',
             '--verbose',
         ]

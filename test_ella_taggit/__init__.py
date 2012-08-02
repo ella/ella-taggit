@@ -1,5 +1,5 @@
 """
-In this package, You can find test environment for Ella tagging unittest project.
+In this package, You can find test environment for Ella taggit unittest project.
 As only true unittest and "unittest" (test testing programming unit, but using
 database et al) are there, there is not much setup around.
 """

@@ -38,8 +38,6 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.comments',
 
-    'tagging',
-
     'ella.core',
     'ella.photos',
     'ella.articles',

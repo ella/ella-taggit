@@ -13,10 +13,10 @@ Thus, we're changing module into package:
   * local.py contains (2) for your specific machine. File your defaults there. 
 """
 
-from test_ella_tagging.settings.base import *
-from test_ella_tagging.settings.config import *
+from test_ella_taggit.settings.base import *
+from test_ella_taggit.settings.config import *
 
 try:
-    from test_ella_tagging.settings.local import *
+    from test_ella_taggit.settings.local import *
 except ImportError:
     pass
