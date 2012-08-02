@@ -9,11 +9,12 @@ from django.utils.translation import ugettext_lazy as _
 from ella.core.models import Publishable
 
 from taggit.managers import TaggableManager
-from taggit.models import ItemBase, Tag
+from taggit.models import ItemBase, TagBase
 
 
-class PublishableTag(Tag):
-    description = models.TextField(verbose_name=_('Description'))
+class PublishableTag(TagBase):
+    description = models.TextField(verbose_name=_('Description'), blank=True,
+                                   null=True)
 
 
 class PublishableTaggedItem(ItemBase):
@@ -22,4 +23,4 @@ class PublishableTaggedItem(ItemBase):
 
 
 # Patch Publishable class to have `tags` attribute
-Publishable.tags = TaggableManager(throught=PublishableTaggedItem)
+Publishable.tags = TaggableManager(through=PublishableTaggedItem)
