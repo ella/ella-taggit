@@ -16,9 +16,9 @@ except ImportError, e:
 
 else:
     from tagging.models import Tag as OldTag
-    from taggit.models import Tag as NewTag
+    from ella_taggit.models import PublishableTag as NewTag
     from tagging.models import TaggedItem as OldTaggedItem
-    from taggit.models import TaggedItem as NewTaggedItem
+    from ella_taggit.models import PublishableTaggedItem as NewTaggedItem
 
     class Command(NoArgsCommand):
         def handle_noargs(self, **kwargs):
@@ -60,7 +60,7 @@ else:
 
         def set_taggeditems(self):
             objects = OldTaggedItem.objects.all()
-            print objects.count()
+            print 'Assigning tags to %i Publishables' % objects.count()
             for old_tagitem in objects:
                 old_id = old_tagitem.tag_id
                 new_id = self.dupemap.get(old_id, old_id)
@@ -70,7 +70,5 @@ else:
                     new_tagitem = NewTaggedItem(
                             id=old_tagitem.id,
                             tag=new_tag,
-                            content_type=old_tagitem.content_type,
-                            object_id=old_tagitem.object_id)
+                            content_object_id=old_tagitem.object_id)
                     new_tagitem.save()
-            print NewTaggedItem.objects.count()
