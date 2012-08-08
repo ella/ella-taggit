@@ -13,7 +13,7 @@ from ella_taggit.models import PublishableTag, tag_list, publishables_with_tag
 
 
 class TaggedPublishablesView(ListView):
-    context_object_name = 'object_list'
+    context_object_name = 'listings'
     paginate_by = getattr(settings, 'TAG_LISTINGS_PAGINATE_BY', 10)
     relation_occ_threshold = getattr(settings, 'TAG_RELATION_OCCURENCE_THRESHOLD', None)
     relation_count_limit = getattr(settings, 'TAG_RELATION_COUNT_LIMIT', None)

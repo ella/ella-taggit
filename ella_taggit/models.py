@@ -5,7 +5,6 @@ Created on 1.8.2012
 '''
 from collections import defaultdict
 from datetime import datetime
-import itertools
 import operator
 
 from django.db import models
