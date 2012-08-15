@@ -11,12 +11,22 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from ella.core.models import Publishable
+from ella.core.cache.utils import cache_this
 
 from taggit.managers import TaggableManager, _TaggableManager
 from taggit.models import ItemBase, TagBase
 from taggit.utils import require_instance_manager
 
 
+def get_tag_list_key(object_list, threshold, count, omit):
+    return 'ella_taggit.models.tag_list:%s:%d:%d:%d' % (
+        ','.join([str(o.pk) for o in object_list]),
+        threshold or 0,
+        count or 0,
+        omit.pk)
+
+
+@cache_this(get_tag_list_key)
 def tag_list(object_list, threshold=None, count=None, omit=None):
     """
     Returns all tags appearing for any object in `object_list` ordered
@@ -52,6 +62,7 @@ def tag_list(object_list, threshold=None, count=None, omit=None):
     return tag_list
 
 
+@cache_this(lambda tag: u'ella_taggit.models.publishables_with_tag:%s' % tag)
 def publishables_with_tag(tag):
     now = datetime.now()
     return Publishable.objects.filter(

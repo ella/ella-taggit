@@ -4,12 +4,11 @@ Created on 1.8.2012
 @author: xaralis
 '''
 from django.template.defaultfilters import slugify
-from django.shortcuts import get_object_or_404
-from django.db.models import Q
 from django.views.generic import ListView
 from django.conf import settings
 
 from ella_taggit.models import PublishableTag, tag_list, publishables_with_tag
+from ella.core.cache.utils import get_cached_object_or_404
 
 
 class TaggedPublishablesView(ListView):
@@ -19,7 +18,7 @@ class TaggedPublishablesView(ListView):
     relation_count_limit = getattr(settings, 'TAG_RELATION_COUNT_LIMIT', 5)
 
     def get_queryset(self):
-        self.tag = get_object_or_404(PublishableTag, slug=self.kwargs['tag'])
+        self.tag = get_cached_object_or_404(PublishableTag, slug=self.kwargs['tag'])
         return publishables_with_tag(self.tag)
 
     def get_template_names(self):
