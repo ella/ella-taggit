@@ -145,6 +145,10 @@ class PublishableTaggableManager(TaggableManager):
         return manager
 
 
+from south.modelsinspector import add_introspection_rules
+add_introspection_rules([], ["ella_taggit.models.PublishableTaggableManager"])
+
+
 # Patch Publishable class to add `tags` attribute
 Publishable.add_to_class(
     'tags', PublishableTaggableManager(through=PublishableTaggedItem))
