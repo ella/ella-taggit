@@ -17,9 +17,9 @@ class TaggedPublishablesView(ListView):
     relation_occ_threshold = getattr(settings, 'TAG_RELATION_OCCURENCE_THRESHOLD', None)
     relation_count_limit = getattr(settings, 'TAG_RELATION_COUNT_LIMIT', 5)
 
-    def get_queryset(self):
+    def get_queryset(self, **kwargs):
         self.tag = get_cached_object_or_404(PublishableTag, slug=self.kwargs['tag'])
-        return publishables_with_tag(self.tag)
+        return publishables_with_tag(self.tag, **kwargs)
 
     def get_template_names(self):
         return (

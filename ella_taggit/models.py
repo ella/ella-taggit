@@ -3,6 +3,7 @@ Created on 1.8.2012
 
 @author: xaralis
 '''
+import cPickle
 from collections import defaultdict
 from datetime import datetime
 import operator
@@ -62,14 +63,18 @@ def tag_list(object_list, threshold=None, count=None, omit=None):
     return tag_list
 
 
-@cache_this(lambda tag: u'ella_taggit.models.publishables_with_tag:%s' % tag)
-def publishables_with_tag(tag):
+@cache_this(lambda tag, **kwargs: u'ella_taggit.models.pub_w_t:%s:%s' % (
+    tag,
+    cPickle.dumps(sorted(kwargs.iteritems()))
+))
+def publishables_with_tag(tag, **kwargs):
     now = datetime.now()
     return Publishable.objects.filter(
         models.Q(publish_to__isnull=True) | models.Q(publish_to__gt=now),
         publish_from__lt=now,
         published=True,
-        tags__in=[tag]
+        tags__in=[tag],
+        **kwargs
     ).distinct().order_by('-publish_from')
 
 
