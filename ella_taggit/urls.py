@@ -14,7 +14,7 @@ try:
         views = settings.TAGGIT_VIEWS
         temp = __import__(views, globals(), locals(), ['TaggedPublishablesView'])
         TaggedPublishablesView = temp.TaggedPublishablesView
-except:
+except ImportError:
     pass
 
 urlpatterns = patterns('',

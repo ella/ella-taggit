@@ -67,15 +67,21 @@ def tag_list(object_list, threshold=None, count=None, omit=None):
     tag,
     cPickle.dumps(sorted(kwargs.iteritems()))
 ))
-def publishables_with_tag(tag, **kwargs):
+def publishables_with_tag(tag, filters={}, excludes={}):
     now = datetime.now()
-    return Publishable.objects.filter(
+
+    qset = Publishable.objects.filter(
         models.Q(publish_to__isnull=True) | models.Q(publish_to__gt=now),
         publish_from__lt=now,
         published=True,
         tags__in=[tag],
-        **kwargs
-    ).distinct().order_by('-publish_from')
+        **filters
+    )
+
+    if excludes:
+        qset = qset.exclude(**excludes)
+
+    return qset.distinct().order_by('-publish_from')
 
 
 class PublishableTag(TagBase):
@@ -153,7 +159,5 @@ class PublishableTaggableManager(TaggableManager):
 from south.modelsinspector import add_introspection_rules
 add_introspection_rules([], ["ella_taggit.models.PublishableTaggableManager"])
 
-
 # Patch Publishable class to add `tags` attribute
-Publishable.add_to_class(
-    'tags', PublishableTaggableManager(through=PublishableTaggedItem))
+Publishable.add_to_class('tags', PublishableTaggableManager(through=PublishableTaggedItem))
