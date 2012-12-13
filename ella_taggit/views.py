@@ -19,7 +19,7 @@ class TaggedPublishablesView(ListView):
 
     def get_queryset(self, **kwargs):
         self.tag = get_cached_object_or_404(PublishableTag, slug=self.kwargs['tag'])
-        return publishables_with_tag(self.tag, **kwargs)
+        return publishables_with_tag(self.tag, filters=kwargs)
 
     def get_template_names(self):
         return (
