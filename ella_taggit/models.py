@@ -3,6 +3,8 @@ Created on 1.8.2012
 
 @author: xaralis
 '''
+import hashlib
+
 import cPickle
 from collections import defaultdict
 from datetime import datetime
@@ -21,7 +23,7 @@ from taggit.utils import require_instance_manager
 
 def get_tag_list_key(object_list, threshold, count, omit):
     return 'ella_taggit.models.tag_list:%s:%d:%d:%d' % (
-        ','.join([str(o.pk) for o in object_list]),
+        hashlib.md5(','.join([str(o.pk) for o in object_list])).hexdigest(),
         threshold or 0,
         count or 0,
         omit.pk)
@@ -64,8 +66,8 @@ def tag_list(object_list, threshold=None, count=None, omit=None):
 
 
 @cache_this(lambda tag, **kwargs: u'ella_taggit.models.pub_w_t:%s:%s' % (
-    tag,
-    cPickle.dumps(sorted(kwargs.iteritems()))
+    unicode(tag).replace(' ', '|'),
+    hashlib.md5(cPickle.dumps(sorted(kwargs.iteritems()))).hexdigest()
 ))
 def publishables_with_tag(tag, filters={}, excludes={}):
     now = datetime.now()
