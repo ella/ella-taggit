@@ -69,14 +69,17 @@ def tag_list(object_list, threshold=None, count=None, omit=None):
     unicode(tag).replace(' ', '|'),
     hashlib.md5(cPickle.dumps(sorted(kwargs.iteritems()))).hexdigest()
 ))
-def publishables_with_tag(tag, filters={}, excludes={}):
+def publishables_with_tag(tag=(), filters={}, excludes={}):
     now = datetime.now()
+
+    if not hasattr(tag, '__iter__'):
+        tag = [tag]
 
     qset = Publishable.objects.filter(
         models.Q(publish_to__isnull=True) | models.Q(publish_to__gt=now),
         publish_from__lt=now,
         published=True,
-        tags__in=[tag],
+        tags__in=tag,
         **filters
     )
 
