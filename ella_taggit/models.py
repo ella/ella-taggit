@@ -66,7 +66,7 @@ def tag_list(object_list, threshold=None, count=None, omit=None):
 
 
 @cache_this(lambda tag, **kwargs: u'ella_taggit.models.pub_w_t:%s:%s' % (
-    unicode(tag).replace(' ', '|'),
+    u';'.join([t.slug for t in sorted(tag, key=lambda i: i.id)]) if hasattr(tag, '__iter__') else t.slug,
     hashlib.md5(cPickle.dumps(sorted(kwargs.iteritems()))).hexdigest()
 ))
 def publishables_with_tag(tag=(), filters={}, excludes={}):
