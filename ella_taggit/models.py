@@ -65,11 +65,16 @@ def tag_list(object_list, threshold=None, count=None, omit=None):
     return tag_list
 
 
-@cache_this(lambda tag, **kwargs: u'ella_taggit.models.pub_w_t:%s:%s' % (
-    u';'.join([t.slug for t in sorted(tag, key=lambda i: i.id)]) if hasattr(tag, '__iter__') else tag.slug,
-    hashlib.md5(cPickle.dumps(sorted(kwargs.iteritems()))).hexdigest()
-))
-def publishables_with_tag(tag=(), filters={}, excludes={}):
+def get_publishables_with_tag_key(tag, **kwargs):
+    tpl = u'ella_taggit.models.pub_w_t:%s:' + hashlib.md5(cPickle.dumps(sorted(kwargs.iteritems()))).hexdigest()
+
+    if hasattr(tag, '__iter__'):
+        return tpl % u';'.join([t.slug for t in sorted(tag, key=lambda i: i.id)])
+
+    return tpl % tag.slug
+
+
+def _publishables_with_tag(tag=(), filters={}, excludes={}):
     now = datetime.now()
 
     if not hasattr(tag, '__iter__'):
@@ -87,6 +92,15 @@ def publishables_with_tag(tag=(), filters={}, excludes={}):
         qset = qset.exclude(**excludes)
 
     return qset.distinct().order_by('-publish_from')
+
+
+def publishables_with_tag(tag=(), filters={}, excludes={}, cache=True):
+    fn = _publishables_with_tag
+
+    if cache:
+        fn = cache_this(get_publishables_with_tag_key)(fn)
+
+    return fn(tag, filters, excludes)
 
 
 class PublishableTag(TagBase):
