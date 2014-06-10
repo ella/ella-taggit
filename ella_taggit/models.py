@@ -100,7 +100,7 @@ def publishables_with_tag(tag=(), filters={}, excludes={}, cache=True):
     if cache:
         fn = cache_this(get_publishables_with_tag_key)(fn)
 
-    return fn(tag, filters, excludes)
+    return fn(tag, filters=filters, excludes=excludes)
 
 
 class PublishableTag(TagBase):
