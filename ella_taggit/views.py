@@ -6,6 +6,9 @@ Created on 1.8.2012
 from django.template.defaultfilters import slugify
 from django.views.generic import ListView
 from django.conf import settings
+from django.core.paginator import EmptyPage, InvalidPage
+from django.utils.translation import ugettext as _
+from django.http import Http404
 
 from ella_taggit.models import PublishableTag, tag_list, publishables_with_tag
 from ella.core.cache.utils import get_cached_object_or_404
@@ -41,7 +44,11 @@ class TaggedPublishablesView(ListView):
         else:
             page_no = 1
 
-        page = paginator.page(page_no)
+        try:
+            page = paginator.page(page_no)
+        except EmptyPage, e:
+            raise Http404(_(u"Empty page."))
+            
         return (paginator, page, page.object_list, page.has_other_pages())
 
     def get_context_data(self, **kwargs):
